@@ -9,23 +9,91 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Dataset Link
+## Dataset
 
-I have decided to use two datasets to complete this project:\
+I have decided to use three data sets in the completion of this project:\
 \
-1. Amazon Prime Movies and TV shows: <https://www.kaggle.com/shivamb/amazon-prime-movies-and-tv-shows>\
-2. Netflix Movies and TV shows: <https://www.kaggle.com/syedmubarak/netflix-dataset-latest-2021>\
+***Amazon Prime Movies and TV shows:*** \
+<https://www.kaggle.com/shivamb/amazon-prime-movies-and-tv-shows>\
+Amazon Prime Video or many known as Prime Video, is a subscription video on-demand streaming and rental service from Amazon.com which offered as a standalone service or as a part of Amazon's Prime subscription. This service primarily offers movies and TV shows produced by Amazon Studios. Besides, movies and TV shows produced by Amazon Studios, Prime Video also host content from other providers, content add-ons, live sporting events, and video rental and purchasing services. \
+\
+This particular data set consists the information such as listings of all the movies and TV shows that are available on Prime Video. In addition, this data set also provide 11 information in relation to the movies and TV shows on Prime Video. This 11 information includes: \
+\
+***1. Type***\
+--- This information tells us if it is a Movie or a TV show. \
+***2. Title***\
+--- This information tells us the title of the Movie or TV show. \
+***3. Director***\
+--- This information tell us the director of the Movie or TV show such as *Don McKellar, Girish Joshi, Mark Knight and others*.\
+***4. Cast***\
+--- This information tell us the cast if the Movie or TV show.\
+***5. Country of Production***\
+--- This information tell us the country location for the production of the movie or TV show.\
+***6. Date added***\
+--- This information tell us the date of the movie or TV show added to Amazon Prime.\
+***7. Released Year ***\
+--- This information tell us the release year of the movie or TV show.\
+***8. View Rating***\
+--- This information tell us the rating of the movie or TV show. Rating such as *PG13, R-rated, and others*.\
+***9. Duration***\
+--- This information tell us the duration of the movie or TV show.\
+***10. Genre***\
+--- This information tell us the genre of the movie or TV show such as *drama, comedy, fitness, or others*.\
+***11. Description***\
+--- This information tell us the description of the movie or TV show.\
+\
+<https://www.kaggle.com/jyotmakadiya/popular-movies-and-tv-shows-amazon-prime-netflix>\
+This particular data set consists the information such as listings of all the movies and TV shows that are available on Prime Video and Netflix. In addition, this data set also provide 8 information in relation to the movies and TV shows on Prime Video. This 8 information includes: \
+\
+***1. Title***\
+--- This information tells us the title of the Movie or TV show. \
+***2. Released Year ***\
+--- This information tell us the release year of the movie or TV show.\
+***3. View Rating***\
+--- This information tell us the rating of the movie or TV show. Rating such as *PG13, R-rated, and others*.\
+***6. Genre***\
+--- This information tell us the genre of the movie or TV show such as *drama, comedy, fitness, or others*.\
+***7. Netflix***\
+--- This information tell us if the movie or TV show is available on Netflix.\
+***8. Amazon Prime***\
+--- This information tell us if the movie or TV show is available on Amazon Prime.\
+\
+This data set will be used to combine with previous listed data set.\
 
-```{r cars}
-summary(cars)
-```
 
-## Including Plots
+***Netflix Movies and TV shows:*** \
+<https://www.kaggle.com/syedmubarak/netflix-dataset-latest-2021>\
+Netflix is an American pay television over-the-top media service and original programming production company. It offers subscription-based video on demand from a library of movies and TV shows which 40% of the video on demand is a in-house production.\
+\
+The data set provided in the above consists of such as listings of all the movies and TV shows that are available on Netflix. The data set also provides 28 additional information in connection to the movies and TV shows on Netflix. However, not all of the additional information will be useful. Therefore, only 14 out of 28 have been selected to be used in this project. These 14 selected information are the following:\
+\
+***1. Title***\
+--- This information tells us the title of the Movie or TV show. \
+***2. Genre***\
+--- This information tell us the genre of the movie or TV show such as *drama, comedy, fitness, or others*.\
+***3. Type***\
+--- This information tells us if it is a Movie or a TV show. \
+***4. Country Availability***\
+--- This information tell us the available countries for the movie or TV show.\
+***5. Duration***\
+--- This information tell us the duration of the movie or TV show.\
+***6. Director***\
+--- This information tell us the director of the Movie or TV show such as *Don McKellar, Girish Joshi, Mark Knight and others*.\
+***7. View Rating***\
+--- This information tell us the rating of the movie or TV show. Rating such as *PG13, R-rated, and others*.\
+***8. Imdb Rating***\
+--- This information tell us the rating from IMDB for the particular movie or TV show.\
+***9. Rotten Tomatoes Rating***\
+--- This information tell us the rating from Rotten Tomatoes for the particular movie or TV show.\
+***10. Awards Received***\
+--- This information tell us the amount of award received for the particular movie or TV show\
+***11. Awards Nominated***\
+--- This information tell us the amount of award nominated for the particular movie or TV show\
+***12. Country of Production***\
+--- This information tell us the country location for the production of the movie or TV show.\
+***13. Released Date ***\
+--- This information tell us the original release date of the movie or TV show.\
+***14. Netflix Released Date ***\
+--- This information tell us the release year of the movie or TV show on Netflix.\
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Plan for the Exploratory Analysis
