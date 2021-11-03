@@ -11,9 +11,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Dataset Link
 
-I have decided to use two datasets to complete this project:
-1. Amazon Prime Movies and TV shows: <https://www.kaggle.com/shivamb/amazon-prime-movies-and-tv-shows>
-2. Netflix Movies and TV shows: <https://www.kaggle.com/syedmubarak/netflix-dataset-latest-2021>
+I have decided to use two datasets to complete this project:\
+\
+1. Amazon Prime Movies and TV shows: <https://www.kaggle.com/shivamb/amazon-prime-movies-and-tv-shows>\
+2. Netflix Movies and TV shows: <https://www.kaggle.com/syedmubarak/netflix-dataset-latest-2021>\
 
 ```{r cars}
 summary(cars)
