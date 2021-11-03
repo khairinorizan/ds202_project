@@ -1,0 +1,30 @@
+---
+title: "DS 202 Project Proposal"
+author: "Muhammad Khairi Norizan"
+date: "11/2/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Dataset Link
+
+I have decided to use two datasets to complete this project:
+1. Amazon Prime Movies and TV shows: <https://www.kaggle.com/shivamb/amazon-prime-movies-and-tv-shows>
+2. Netflix Movies and TV shows: <https://www.kaggle.com/syedmubarak/netflix-dataset-latest-2021>
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
