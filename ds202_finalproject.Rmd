@@ -40,7 +40,10 @@ netflix <- netflix %>%
             rename(Genre = Genre.x, `Series/Movie` = `Series or Movie`)
 
 amazon <- amazon %>% 
-          select(Title, Year, rating, IMDb, `Rotten Tomatoes`, Genre, type, director, country, date_added, release_year, duration)
+          select(Title, Year, rating, IMDb, `Rotten Tomatoes`, 
+                 Genre, type, director, country, date_added, release_year, duration)
+amazon$IMDb <- as.numeric(amazon$IMDb)
+amazon$`Rotten Tomatoes` <- as.numeric(amazon$`Rotten Tomatoes`)
 ```
 
 ## Exploration
@@ -68,9 +71,38 @@ movies_series_count <- movies_series_count %>%
                         filter(!is.na(Type))
 
 ggplot(movies_series_count, aes(x=Type, y=count, fill = Stream)) +
-  geom_bar(stat = "identity", position=position_dodge())
+  geom_bar(stat = "identity", position=position_dodge()) + 
+    scale_fill_manual(values=c('#999999','#E69F00'))
 ```
 
-```{r}
+```{r, message=FALSE}
+amazon_movies_series_avg_rating <- amazon %>% 
+                                    group_by(type) %>% 
+                                    summarize(AvgImdbScore = mean(na.omit(IMDb)), 
+                                              AvgRottenTomatoesScore = mean(na.omit(`Rotten Tomatoes`)))
 
+netflix_movies_series_avg_rating <- netflix %>% 
+                                    group_by(`Series/Movie`) %>% 
+                                    summarize(AvgImdbScore = mean(na.omit(`IMDb Score`)), 
+                                              AvgRottenTomatoesScore = mean(na.omit(`Rotten Tomatoes Score`)))
+
+netflix_movies_series_avg_rating$`Series/Movie`[netflix_movies_series_avg_rating$`Series/Movie` == 'Series'] <- 'TV Show'
+
+movies_series_avg_rating <- amazon_movies_series_avg_rating %>% 
+                            full_join(netflix_movies_series_avg_rating) %>% 
+                            rename(Amazon = type, Netflix = `Series/Movie`)
+
+movies_series_avg_rating <- movies_series_avg_rating[, c("AvgImdbScore", "AvgRottenTomatoesScore", 
+                                                         "Amazon", "Netflix")]
+
+movies_series_avg_rating <- movies_series_avg_rating %>% 
+                            pivot_longer(Amazon:Netflix, names_to = "Stream", values_to = "Type") %>% 
+                            filter(!is.na(Type))
+
+ggplot(movies_series_avg_rating, aes(x = Type, y = AvgImdbScore, fill = Stream)) +
+  geom_bar(stat = "identity", position=position_dodge()) + 
+    scale_fill_manual(values=c('#999999','#E69F00')) + labs(title = "Amazon vs Netflix IMDb Score")
+
+ggplot(movies_series_avg_rating, aes(x = Type, y = AvgRottenTomatoesScore, fill = Stream)) +
+  geom_bar(stat = "identity", position=position_dodge()) + labs(title = "Amazon vs Netflix Rotten Tomatoes Score")
 ```
