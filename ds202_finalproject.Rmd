@@ -1,0 +1,76 @@
+---
+title: 'DS 202: Final Project'
+author: "Muhammad Khairi Norizan"
+date: "11/28/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# import library 
+library(tidyverse)
+library(lubridate)
+library(ggplot2)
+library(dplyr)
+library(readxl)
+
+# importing dataset
+netflix <- read_excel('./Dataset/Netflix Dataset Latest 2021.xlsx', sheet='FlixGem.com dataset')
+amazon <- read_csv("./Dataset/amazon_prime_titles.csv") 
+netflix_amazon <- read_csv("./Dataset/Popular Movies TV shows from Prime Videos Netflix version_3.csv") 
+```
+
+## Data Engineering
+```{r}
+# extract only amazon data
+amazon2 <- netflix_amazon %>% filter(`Amazon Prime Video` == 1)
+
+# extract only netflix data
+netflix2 <- netflix_amazon %>% filter(Netflix == 1)
+
+# join dataset
+netflix <- netflix %>% inner_join(netflix2, by = c("Title" = "Title"))
+amazon <- amazon2 %>% inner_join(amazon, by = c("Title" = "title"))
+
+# cleaning dataset
+netflix <- netflix %>% 
+            select(Title, Genre.x, Tags, Languages, `Series or Movie`, `Country Availability`, 
+                   Runtime, Director, Writer, `View Rating`, `IMDb Score`, `Rotten Tomatoes Score`, 
+                   `Awards Received`, `Awards Nominated For`, `Release Date`, `Netflix Release Date`, 
+                   `IMDb Votes`, Year) %>% 
+            rename(Genre = Genre.x, `Series/Movie` = `Series or Movie`)
+
+amazon <- amazon %>% 
+          select(Title, Year, rating, IMDb, `Rotten Tomatoes`, Genre, type, director, country, date_added, release_year, duration)
+```
+
+## Exploration
+
+1. Find the number of Movies and TV shows, and find the average IMDb and Rotten Tomatoes score.
+```{r, message=FALSE}
+amazon_movies_series_count <- amazon %>% 
+                              group_by(type) %>% 
+                              summarize(count = n())
+
+netflix_movies_series_count <- netflix %>% 
+                                group_by(`Series/Movie`) %>% 
+                                summarize(count = n())
+
+netflix_movies_series_count$`Series/Movie`[netflix_movies_series_count$`Series/Movie` == 'Series'] <- 'TV Show'
+
+movies_series_count <- amazon_movies_series_count %>% 
+                        full_join(netflix_movies_series_count) %>% 
+                        rename(Amazon = type, Netflix = `Series/Movie`)
+
+movies_series_count <- movies_series_count[, c("count", "Amazon", "Netflix")]
+
+movies_series_count <- movies_series_count %>% 
+                        pivot_longer(Amazon:Netflix, names_to = "Stream", values_to = "Type") %>% 
+                        filter(!is.na(Type))
+
+ggplot(movies_series_count, aes(x=Type, y=count, fill = Stream)) +
+  geom_bar(stat = "identity", position=position_dodge())
+```
+
+```{r}
+
+```
