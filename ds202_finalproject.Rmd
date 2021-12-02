@@ -300,5 +300,31 @@ ggplot(grouped_by_countries, aes(x = Country, y = `Title Count`, fill = Country)
 
 7. From Amazon Prime data set, determine the top 5 Movie genre based on both average IMDb and Rotten Tomatoes score
 ```{r}
+amazon_top_genre <- amazon %>% 
+                    filter(type == "Movie") %>% 
+                    select(Title, Genre, IMDb, `Rotten Tomatoes`) %>% 
+                    group_by(Genre) %>% 
+                    summarize(`Average IMDb` = mean(na.omit(IMDb)), `Average Rotten Tomatoes` = mean(na.omit(`Rotten Tomatoes`)))
 
+amazon_IMDB_top_genre <- amazon_top_genre %>% 
+                          arrange(desc(`Average IMDb`)) %>% 
+                          select(Genre, `Average IMDb`) %>% 
+                          head(10)
+
+amazon_rotten_top_genre <- amazon_top_genre %>% 
+                            arrange(desc(`Average Rotten Tomatoes`)) %>% 
+                            select(Genre, `Average Rotten Tomatoes`) %>% 
+                            head(10)
+
+ggplot(amazon_IMDB_top_genre, aes(x = Genre, y = `Average IMDb`, fill = Genre)) +
+  geom_bar(stat = "identity", position=position_dodge()) + 
+      labs(title = "Top 10 Amazon Prime genre from IMDb Score") + 
+        theme(text = element_text(size=10), axis.text.x = element_text(angle = 90, hjust=1))
+
+ggplot(amazon_rotten_top_genre, aes(x = Genre, y = `Average Rotten Tomatoes`, fill = Genre)) +
+  geom_bar(stat = "identity", position=position_dodge()) + 
+      labs(title = "Top 10 Amazon Prime genre from Rotten Tomatoes Score") + 
+        theme(text = element_text(size=10), axis.text.x = element_text(angle = 90, hjust=1))
 ```
+
+8. From Netflix data set, determine the top 5 Movie genre based on both average IMDb and Rotten Tomatoes score
