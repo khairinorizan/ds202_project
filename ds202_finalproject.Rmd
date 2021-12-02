@@ -20,7 +20,7 @@ netflix_amazon <- read_csv("./Dataset/Popular Movies TV shows from Prime Videos 
 ```
 
 ## Data Engineering
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # extract only amazon data
 amazon2 <- netflix_amazon %>% filter(`Amazon Prime Video` == 1)
 
@@ -37,7 +37,8 @@ netflix <- netflix %>%
                    Runtime, Director, Writer, `View Rating`, `IMDb Score`, `Rotten Tomatoes Score`, 
                    `Awards Received`, `Awards Nominated For`, `Release Date`, `Netflix Release Date`, 
                    `IMDb Votes`, Year) %>% 
-            rename(Genre = Genre.x, `Series/Movie` = `Series or Movie`)
+            rename(Genre = Genre.x, `Series/Movie` = `Series or Movie`) %>% 
+            distinct(Title, .keep_all = TRUE)
 
 amazon <- amazon %>% 
           select(Title, Year, rating, IMDb, `Rotten Tomatoes`, 
@@ -75,7 +76,7 @@ ggplot(movies_series_count, aes(x=Type, y=count, fill = Stream)) +
     scale_fill_manual(values=c('#999999','#E69F00'))
 ```
 
-```{r, message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 amazon_movies_series_avg_rating <- amazon %>% 
                                     group_by(type) %>% 
                                     summarize(AvgImdbScore = mean(na.omit(IMDb)), 
@@ -101,8 +102,203 @@ movies_series_avg_rating <- movies_series_avg_rating %>%
 
 ggplot(movies_series_avg_rating, aes(x = Type, y = AvgImdbScore, fill = Stream)) +
   geom_bar(stat = "identity", position=position_dodge()) + 
-    scale_fill_manual(values=c('#999999','#E69F00')) + labs(title = "Amazon vs Netflix IMDb Score")
+    scale_fill_manual(values=c('#999999','#E69F00')) + 
+      labs(title = "Amazon vs Netflix IMDb Score")
 
 ggplot(movies_series_avg_rating, aes(x = Type, y = AvgRottenTomatoesScore, fill = Stream)) +
-  geom_bar(stat = "identity", position=position_dodge()) + labs(title = "Amazon vs Netflix Rotten Tomatoes Score")
+  geom_bar(stat = "identity", position=position_dodge()) + 
+    labs(title = "Amazon vs Netflix Rotten Tomatoes Score")
+```
+
+2. Find all rating categories average IMDb rating for both Netflix and Amazon
+```{r}
+amazon_rating_categories <- amazon %>% 
+                              group_by(rating) %>% 
+                              summarize(AvgImdbScore = mean(na.omit(IMDb)), 
+                                        AvgRottenTomatoesScore = mean(na.omit(`Rotten Tomatoes`))) %>% 
+                              filter(!rating %in% c("NOT_RATE", "UNRATED", NA))
+
+netflix_rating_categories <- netflix %>% 
+                              group_by(`View Rating`) %>% 
+                              summarize(AvgImdbScore = mean(na.omit(`IMDb Score`)), 
+                                        AvgRottenTomatoesScore = mean(na.omit(`Rotten Tomatoes Score`))) %>% 
+                              filter(!`View Rating` %in% c("Not Rated", "Unrated", NA))
+
+ggplot(amazon_rating_categories, aes(x = rating, y = AvgImdbScore, fill = rating)) +
+  geom_bar(stat = "identity", position=position_dodge()) + 
+      labs(title = "Amazon Rating Categories Average IMDb Score") + 
+        theme(text = element_text(size=10), axis.text.x = element_text(angle = 90, hjust=1))
+
+ggplot(netflix_rating_categories, aes(x = `View Rating`, y = AvgImdbScore, fill = `View Rating`)) +
+  geom_bar(stat = "identity", position=position_dodge()) + 
+      labs(title = "Netflix Rating Categories Average IMDb Score") + 
+        theme(text = element_text(size=10), axis.text.x = element_text(angle = 90, hjust=1))
+```
+
+3. From both Amazon and Netflix data set, list top 10 director(s) based on the average IMDb score.
+```{r, message=FALSE, warning=FALSE}
+newAmazon <- amazon %>% 
+              mutate(director = strsplit(director, ",")) %>% 
+              unnest(director) %>% 
+              group_by(Title) %>% 
+              mutate(`Director Name` = row_number()) %>% 
+              spread(`Director Name`, director, sep = "")
+
+newNetflix <- netflix %>% mutate(Director = strsplit(Director, ",")) %>% 
+              unnest(Director) %>% 
+              group_by(Title) %>% 
+              mutate(`Director Name` = row_number()) %>% 
+              spread(`Director Name`, Director, sep = "")
+
+newAmazon <- newAmazon %>% select(Title, 
+                                  IMDb, 
+                                  `Director Name1`, 
+                                  `Director Name2`, 
+                                  `Director Name3`, 
+                                  `Director Name4`, 
+                                  `Director Name5`, 
+                                  `Director Name6`, 
+                                  `Director Name7`, 
+                                  `Director Name8`, 
+                                  `Director Name9`, 
+                                  `Director Name10`)
+
+newNetflix <- newNetflix %>% select(Title, 
+                                    `IMDb Score`, 
+                                    `Director Name1`, 
+                                    `Director Name2`, 
+                                    `Director Name3`, 
+                                    `Director Name4`, 
+                                    `Director Name5`, 
+                                    `Director Name6`, 
+                                    `Director Name7`, 
+                                    `Director Name8`, 
+                                    `Director Name9`, 
+                                    `Director Name10`, 
+                                    `Director Name11`)
+
+grouped_newAmazon <- newAmazon %>% 
+                      group_by(`Director Name1`, 
+                               `Director Name2`, 
+                               `Director Name3`, 
+                               `Director Name4`, 
+                               `Director Name5`, 
+                               `Director Name6`, 
+                               `Director Name7`, 
+                               `Director Name8`, 
+                               `Director Name9`, 
+                               `Director Name10`) %>% 
+                      summarize(AvgIMDbScore = mean(IMDb, na.rm = TRUE)) %>% 
+                      unite("Director", `Director Name1`:`Director Name10`, na.rm = TRUE, remove = TRUE, sep = ",") %>% 
+                      arrange(desc(AvgIMDbScore)) %>% head(10)
+
+grouped_newNetflix <- newNetflix %>% 
+                        group_by(`Director Name1`, 
+                                 `Director Name2`, 
+                                 `Director Name3`, 
+                                 `Director Name4`, 
+                                 `Director Name5`, 
+                                 `Director Name6`, 
+                                 `Director Name7`, 
+                                 `Director Name8`, 
+                                 `Director Name9`, 
+                                 `Director Name10`, 
+                                 `Director Name11`) %>% 
+                        summarize(AvgIMDbScore = mean(`IMDb Score`, na.rm = TRUE)) %>% 
+                        unite("Director", `Director Name1`:`Director Name11`, na.rm = TRUE, remove = TRUE, sep = ",") %>% 
+                        arrange(desc(AvgIMDbScore)) %>% head(10)
+
+ggplot(grouped_newAmazon, aes(x = Director, y = AvgIMDbScore, fill = Director)) +
+  geom_bar(stat = "identity", position=position_dodge()) + 
+      labs(title = "Top 10 Directors in Amazon Prime dataset based on average IMDb score") + 
+        theme(text = element_text(size=10), axis.text.x = element_text(angle = 90, hjust=1))
+
+ggplot(grouped_newNetflix, aes(x = Director, y = AvgIMDbScore, fill = Director)) +
+  geom_bar(stat = "identity", position=position_dodge()) + 
+      labs(title = "Top 10 Directors in Netflix dataset based on average IMDb score") + 
+        theme(text = element_text(size=8), axis.text.x = element_text(angle = 45, hjust=1))
+```
+
+4. For Netflix movies and TV shows, does receiving more awards imply high scores on IMDb?
+```{r}
+netflix_awards_received <- netflix %>% 
+                            arrange(desc(`Awards Received`)) %>% 
+                            distinct(Title, .keep_all = TRUE) %>% 
+                            select(Title, `IMDb Score`, `Awards Received`) %>% 
+                            head(10)
+
+print(netflix_awards_received)
+```
+
+5. Determine top 5 movies and TV Show based on IMDb and Rotten Tomatoes for Netflix data set that is available in Malaysia.
+```{r}
+netflix_in_Malaysia <- netflix %>%
+                        select(Title, `Country Availability`, `IMDb Score`, `Rotten Tomatoes Score`) %>%
+                        mutate(`Country Availability` = strsplit(`Country Availability`, ",")) %>%
+                        unnest(`Country Availability`) %>%
+                        group_by(Title) %>%
+                        mutate(`Country Show` = row_number()) %>%
+                        spread(`Country Show`, `Country Availability`, sep = "") %>% 
+                        pivot_longer(`Country Show1`:`Country Show36`, 
+                                     names_to = "IMDB", 
+                                     values_to = "Country") %>% 
+                        select(Title, `IMDb Score`, `Rotten Tomatoes Score`, Country) %>% 
+                        filter(!is.na(`Rotten Tomatoes Score`)) %>% 
+                        filter(!is.na(`IMDb Score`)) %>% 
+                        filter(!is.na(Country)) %>% 
+                        filter(Country == "Malaysia")
+
+imdb_netflix_in_Malaysia <- netflix_in_Malaysia %>% 
+                            select(Title, `IMDb Score`, Country) %>% 
+                            arrange(desc(`IMDb Score`)) %>% 
+                            head(10)
+
+rotten_netflix_in_Malaysia <- netflix_in_Malaysia %>% 
+                              select(Title, `Rotten Tomatoes Score`, Country) %>% 
+                              arrange(desc(`Rotten Tomatoes Score`)) %>% 
+                              head(10)
+
+rotten_netflix_in_Malaysia[rotten_netflix_in_Malaysia == "Attacking the Devil: Harold Evans and the Last Nazi War Crime"] <- "Attacking the Devil"
+
+ggplot(imdb_netflix_in_Malaysia, aes(x = Title, y = `IMDb Score`, fill = Title)) +
+  geom_bar(stat = "identity", position=position_dodge()) + 
+      labs(title = "Top 10 Movie/TV Show on Netflix Malaysia from IMDb Score") + 
+        theme(text = element_text(size=10), axis.text.x = element_text(angle = 90, hjust=1))
+
+ggplot(rotten_netflix_in_Malaysia, aes(x = Title, y = `Rotten Tomatoes Score`, fill = Title)) +
+  geom_bar(stat = "identity", position=position_dodge()) + 
+      labs(title = "Top 10 Movie/TV Show on Netflix Malaysia from Rotten Tomatoes Score") + 
+        theme(text = element_text(size=10), axis.text.x = element_text(angle = 90, hjust=1))
+```
+\
+6. From Netflix data set, determine the top 5 countries with most movie/TV show available
+```{r}
+netflix_by_countries <- netflix %>%
+                          select(Title, `Country Availability`, `IMDb Score`, `Rotten Tomatoes Score`) %>%
+                          mutate(`Country Availability` = strsplit(`Country Availability`, ",")) %>%
+                          unnest(`Country Availability`) %>%
+                          group_by(Title) %>%
+                          mutate(`Country Show` = row_number()) %>%
+                          spread(`Country Show`, `Country Availability`, sep = "") %>% 
+                          pivot_longer(`Country Show1`:`Country Show36`, 
+                                       names_to = "IMDB", 
+                                       values_to = "Country") %>% 
+                          select(Title, `IMDb Score`, `Rotten Tomatoes Score`, Country) %>% 
+                          filter(!is.na(Country))
+
+grouped_by_countries <- netflix_by_countries %>% 
+                        group_by(Country) %>% 
+                        summarize(`Title Count` = n()) %>% 
+                        arrange(desc(`Title Count`)) %>% 
+                        head(10)
+
+ggplot(grouped_by_countries, aes(x = Country, y = `Title Count`, fill = Country)) +
+  geom_bar(stat = "identity", position=position_dodge()) + 
+      labs(title = "Countries with most movies/TV Show") + 
+        theme(text = element_text(size=10), axis.text.x = element_text(angle = 90, hjust=1))
+```
+
+7. From Amazon Prime data set, determine the top 5 Movie genre based on both average IMDb and Rotten Tomatoes score
+```{r}
+
 ```
